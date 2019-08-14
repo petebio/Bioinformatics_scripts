@@ -31,7 +31,7 @@ for line in xls:
 
 	chrom = fields[0]
 	summit = fields[4]
-	height = int(fields[5].rstrip('.00'))
+	height = int(fields[5].replace('.00', ''))
 
 	if height >= args.height:
 		start = str(int(summit) - 1)
