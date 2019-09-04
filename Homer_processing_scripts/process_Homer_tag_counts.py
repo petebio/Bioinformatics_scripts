@@ -5,7 +5,7 @@ import sys
 #################################################################################################################################
 
 parser = argparse.ArgumentParser()
-parser_add_argument('outfile', type = str, help = 'Output file')
+parser.add_argument('outfile', type = str, help = 'Output file')
 parser.add_argument('-a', type = str, default = 'Sample_A', help = 'Sample ID for sample A, Default = Sample_A')
 parser.add_argument('-b', type = str, default = 'Sample_B', help = 'Sample ID for sample B, Default = Sample_B')
 
