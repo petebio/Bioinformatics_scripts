@@ -40,8 +40,9 @@ sys.stderr.write('Read %d background sites from %s\n' % (len(bg_bed), args.bg_be
 # Keep track of intersect counts between random samples and the comparison sites
 sample_site_counts = list()
 
-# Record the number of times the intersect of the random samples is greater than that of the actual foreground sites
+# Record the number of times the intersect of the random samples is greater and less than that of the actual foreground sites
 sample_gt_count = 0
+sample_lt_count = 0
 
 n_fg_sites = fg_bed.count()
 
@@ -61,14 +62,19 @@ for i in range(0,args.n):
 	# Check if random count is greater than foregound count
 	if sample_intersect_count > fg_intersect_count:
 		sample_gt_count = sample_gt_count + 1
+	elif sample_intersect_count < fg_intersect_count:
+		sample_lt_count = sample_lt_count + 1
 
 sys.stderr.write('\nDone!!\n')
 
-# Calculate the p-value - this is the proportion of times the random sample count is greater than the actual foreground count
+# Calculate the p-value - this is the proportion of times the random sample count is greater (right sided) or less (left sided) than the actual foreground count
 # Add a count of 1 to the numerator and denominator to avoid miscalculation of the p-value
 # See Phipson & Smyth (2010). Permutation P-values Should Never Be Zero: Calculating Exact P-values When Permutations Are Randomly Drawn (PMID: 21044043) for more details
-p = (sample_gt_count + 1) / (args.n + 1)
-sys.stderr.write('p = %f\n' % p)
+p_right_sided = (sample_gt_count + 1) / (args.n + 1)
+sys.stderr.write('p-value right (enrichment) = %f\n' % p_right_sided)
+
+p_left_sided = (sample_lt_count + 1) / (args.n + 1)
+sys.stderr.write('p-value left (depletion) = %f\n' % p_left_sided)
 
 # Calculate the mean and standard deviation of the random sample count distribution - use these to calculate the Z-Score
 mu = numpy.mean(sample_site_counts)
@@ -85,7 +91,7 @@ sys.stderr.write('Writing results to %s\n' % args.out)
 out = open(args.out, 'w')
 
 # The first line of the output file contains all summary statistics from the test
-out.write('# fg = %s; sample = %s; n_fg_sites = %d; mu = %f; sigma = %f; z = %f; p = %f\n' % (args.fg_bed, args.comp_bed, fg_intersect_count, mu, sigma, z, p))
+out.write('# fg = %s; sample = %s; n_fg_sites = %d; mu = %f; sigma = %f; z = %f; left sided p = %f; right sided p = %f\n' % (args.fg_bed, args.comp_bed, fg_intersect_count, mu, sigma, z, p_left_sided, p_right_sided))
 
 # Write all counts from the random samples - useful if you want to plot the null distribution later
 for count in sample_site_counts:
